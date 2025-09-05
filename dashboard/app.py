@@ -32,7 +32,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# CSS custom untuk judul yang di-center dan freeze
+# CSS custom untuk judul yang di-center, freeze, dan adaptif dengan tema
 st.markdown(
     """
     <style>
@@ -40,14 +40,52 @@ st.markdown(
         text-align: center;
         position: sticky;
         top: 0;
-        background-color: white;
+        background-color: var(--background-color);
         z-index: 1000;
-        padding: 10px;
+        padding: 15px;
         margin-bottom: 20px;
-        border-bottom: 2px solid #f0f2f6;
+        border-bottom: 2px solid var(--border-color);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    
+    .main-header h1 {
+        color: var(--text-color);
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    
+    /* Variabel CSS untuk tema adaptif */
+    :root {
+        --background-color: #ffffff;
+        --text-color: #31333F;
+        --border-color: #f0f2f6;
+    }
+    
+    /* Dark theme support */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --background-color: #0E1117;
+            --text-color: #FAFAFA;
+            --border-color: #262730;
+        }
+    }
+    
+    /* Streamlit dark theme support */
+    .stApp[data-theme="dark"] .main-header {
+        --background-color: #0E1117;
+        --text-color: #FAFAFA;
+        --border-color: #262730;
+    }
+    
+    /* Pastikan konten tidak tertutup oleh header sticky */
     .stApp {
-        margin-top: 60px;
+        margin-top: 80px;
+    }
+    
+    /* Improve scroll behavior */
+    .main-content {
+        padding-top: 20px;
     }
     </style>
     """,
@@ -55,7 +93,13 @@ st.markdown(
 )
 
 # Judul aplikasi dengan CSS custom
-st.markdown('<div class="main-header"><h1>🏞️ Dashboard Simulasi Kasus Lahan</h1></div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="main-header"><h1>🏞️ Dashboard Simulasi Kasus Lahan</h1></div>', 
+    unsafe_allow_html=True
+)
+
+# Container untuk konten utama
+st.markdown('<div class="main-content">', unsafe_allow_html=True)
 
 # Sidebar
 st.sidebar.header("Konfigurasi")
@@ -235,3 +279,6 @@ st.sidebar.info(
     "Dashboard ini menampilkan analisis data lahan simulasi. "
     "Gunakan opsi konfigurasi mata uang untuk menampilkan nilai dalam Rupiah."
 )
+
+# Tutup container untuk konten utama
+st.markdown('</div>', unsafe_allow_html=True)
