@@ -1,4 +1,1 @@
-import streamlit as st 
- 
-st.title("Dashboard Simulasi Kasus Lahan") 
-st.success("Aplikasi berhasil di-deploy!") 
+python scripts/create_sample_data.py
