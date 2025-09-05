@@ -32,31 +32,75 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Judul aplikasi
-st.title("🏞️ Dashboard Simulasi Kasus Lahan")
+# CSS custom untuk judul yang di-center dan freeze
+st.markdown(
+    """
+    <style>
+    .main-header {
+        text-align: center;
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 1000;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #f0f2f6;
+    }
+    .stApp {
+        margin-top: 60px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Judul aplikasi dengan CSS custom
+st.markdown('<div class="main-header"><h1>🏞️ Dashboard Simulasi Kasus Lahan</h1></div>', unsafe_allow_html=True)
 
 # Sidebar
 st.sidebar.header("Konfigurasi")
 
-# Konfigurasi Mata Uang
-st.sidebar.subheader("Konfigurasi Mata Uang")
-exchange_rate = st.sidebar.number_input(
-    "Nilai Tukar USD ke IDR",
-    min_value=1000.0,
-    max_value=20000.0,
-    value=14000.0,
-    step=100.0,
-    help="Masukkan nilai tukar USD ke Rupiah"
-)
+# Konfigurasi Mata Uang dalam expander (tersembunyi secara default)
+with st.sidebar.expander("⚙️ Konfigurasi Mata Uang (Opsional)", expanded=False):
+    exchange_rate = st.number_input(
+        "Nilai Tukar USD ke IDR",
+        min_value=1000.0,
+        max_value=20000.0,
+        value=14000.0,
+        step=100.0,
+        help="Masukkan nilai tukar USD ke Rupiah"
+    )
+    
+    show_idr = st.checkbox("Tampilkan dalam Rupiah", value=False)
 
-show_idr = st.sidebar.checkbox("Tampilkan dalam Rupiah", value=False)
-
-# Fungsi untuk format mata uang
+# Fungsi untuk format mata uang dengan penanganan digit yang lebih baik
 def format_currency(amount, currency="USD"):
-    if currency == "IDR":
-        return f"Rp {amount * exchange_rate:,.0f}"
-    else:
-        return f"${amount:,.2f}"
+    try:
+        if currency == "IDR":
+            # Format Rupiah tanpa desimal, dengan pemisah ribuan
+            nilai_idr = amount * exchange_rate
+            if nilai_idr >= 1_000_000_000_000:  # Triliun
+                return f"Rp {nilai_idr/1_000_000_000_000:.2f} T"
+            elif nilai_idr >= 1_000_000_000:  # Miliar
+                return f"Rp {nilai_idr/1_000_000_000:.2f} M"
+            elif nilai_idr >= 1_000_000:  # Juta
+                return f"Rp {nilai_idr/1_000_000:.2f} Jt"
+            elif nilai_idr >= 1_000:  # Ribu
+                return f"Rp {nilai_idr/1_000:.2f} Rb"
+            else:
+                return f"Rp {nilai_idr:,.0f}".replace(",", ".")
+        else:
+            # Format USD dengan 2 desimal
+            if amount >= 1_000_000_000:  # Billion
+                return f"${amount/1_000_000_000:.2f}B"
+            elif amount >= 1_000_000:  # Million
+                return f"${amount/1_000_000:.2f}M"
+            elif amount >= 1_000:  # Thousand
+                return f"${amount/1_000:.2f}K"
+            else:
+                return f"${amount:,.2f}"
+    except:
+        return f"${amount:,.2f}"  # Fallback format
 
 # Fungsi untuk membuat data sampel
 def create_sample_data():
@@ -164,7 +208,12 @@ if gdf_clean is not None:
         
         # Tampilkan statistik
         st.subheader("Statistik Deskriptif")
-        st.dataframe(gdf_clean['value'].describe())
+        stats = gdf_clean['value'].describe()
+        if show_idr:
+            stats_formatted = stats.apply(lambda x: format_currency(x, "IDR"))
+        else:
+            stats_formatted = stats.apply(lambda x: format_currency(x, "USD"))
+        st.dataframe(stats_formatted)
 
     with tab3:
         st.header("Data")
@@ -183,5 +232,6 @@ else:
 # Informasi tambahan
 st.sidebar.subheader("Informasi")
 st.sidebar.info(
-    "Dashboard ini menampilkan analisis data lahan simulasi."
+    "Dashboard ini menampilkan analisis data lahan simulasi. "
+    "Gunakan opsi konfigurasi mata uang untuk menampilkan nilai dalam Rupiah."
 )
