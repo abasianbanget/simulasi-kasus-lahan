@@ -58,41 +58,8 @@ def format_currency(amount, currency="USD"):
     else:
         return f"${amount:,.2f}"
 
-# Konfigurasi Mata Uang
-st.sidebar.subheader("Konfigurasi Mata Uang")
-exchange_rate = st.sidebar.number_input(
-    "Nilai Tukar USD ke IDR",
-    min_value=1000.0,
-    max_value=20000.0,
-    value=14000.0,
-    step=100.0,
-    help="Masukkan nilai tukar USD ke Rupiah"
-)
-
-show_idr = st.sidebar.checkbox("Tampilkan dalam Rupiah", value=False)
-
-if gdf_clean is not None:
-    # Tampilkan metrik dengan opsi mata uang
-    col1, col2, col3, col4 = st.columns(4)
-    currency = "IDR" if show_idr else "USD"
-    
-    col1.metric("Jumlah Data", len(gdf_clean))
-    col2.metric("Nilai Rata-rata", format_currency(gdf_clean['value'].mean(), currency))
-    col3.metric("Nilai Minimum", format_currency(gdf_clean['value'].min(), currency))
-    col4.metric("Nilai Maksimum", format_currency(gdf_clean['value'].max(), currency))
-    
 # Fungsi untuk membuat data sampel
-with tab3:
-    st.header("Data")
-    
-    # Format kolom value berdasarkan mata uang yang dipilih
-    display_data = gdf_clean.drop(columns=['geometry']).copy()
-    if show_idr:
-        display_data['value'] = display_data['value'].apply(lambda x: format_currency(x, "IDR"))
-    else:
-        display_data['value'] = display_data['value'].apply(lambda x: format_currency(x, "USD"))
-    
-    st.dataframe(display_data)
+def create_sample_data():
     try:
         # Buat direktori jika belum ada
         os.makedirs('data/raw', exist_ok=True)
@@ -152,12 +119,14 @@ def load_data():
 gdf_clean, config = load_data()
 
 if gdf_clean is not None:
-    # Tampilkan metrik
+    # Tampilkan metrik dengan opsi mata uang
     col1, col2, col3, col4 = st.columns(4)
+    currency = "IDR" if show_idr else "USD"
+    
     col1.metric("Jumlah Data", len(gdf_clean))
-    col2.metric("Nilai Rata-rata", f"${gdf_clean['value'].mean():.2f}")
-    col3.metric("Nilai Minimum", f"${gdf_clean['value'].min():.2f}")
-    col4.metric("Nilai Maksimum", f"${gdf_clean['value'].max():.2f}")
+    col2.metric("Nilai Rata-rata", format_currency(gdf_clean['value'].mean(), currency))
+    col3.metric("Nilai Minimum", format_currency(gdf_clean['value'].min(), currency))
+    col4.metric("Nilai Maksimum", format_currency(gdf_clean['value'].max(), currency))
 
     # Tab untuk berbagai visualisasi
     tab1, tab2, tab3 = st.tabs(["Peta Interaktif", "Analisis Statistik", "Data"])
@@ -199,7 +168,15 @@ if gdf_clean is not None:
 
     with tab3:
         st.header("Data")
-        st.dataframe(gdf_clean.drop(columns=['geometry']))
+        
+        # Format kolom value berdasarkan mata uang yang dipilih
+        display_data = gdf_clean.drop(columns=['geometry']).copy()
+        if show_idr:
+            display_data['value'] = display_data['value'].apply(lambda x: format_currency(x, "IDR"))
+        else:
+            display_data['value'] = display_data['value'].apply(lambda x: format_currency(x, "USD"))
+        
+        st.dataframe(display_data)
 else:
     st.error("Tidak dapat memuat data. Pastikan data sampel telah dibuat dengan menjalankan 'python scripts/create_sample_data.py'")
 
