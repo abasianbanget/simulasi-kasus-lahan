@@ -32,18 +32,19 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# CSS custom untuk judul yang di-center, freeze, dan adaptif dengan tema
+# CSS custom untuk judul yang benar-benar freeze dan adaptif
 st.markdown(
     """
     <style>
     .main-header {
         text-align: center;
-        position: sticky;
+        position: fixed;
         top: 0;
+        left: 0;
+        right: 0;
         background-color: var(--background-color);
         z-index: 1000;
         padding: 15px;
-        margin-bottom: 20px;
         border-bottom: 2px solid var(--border-color);
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
@@ -51,7 +52,7 @@ st.markdown(
     .main-header h1 {
         color: var(--text-color);
         margin: 0;
-        font-size: 2.5rem;
+        font-size: 2rem;
         font-weight: 700;
     }
     
@@ -62,15 +63,6 @@ st.markdown(
         --border-color: #f0f2f6;
     }
     
-    /* Dark theme support */
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --background-color: #0E1117;
-            --text-color: #FAFAFA;
-            --border-color: #262730;
-        }
-    }
-    
     /* Streamlit dark theme support */
     .stApp[data-theme="dark"] .main-header {
         --background-color: #0E1117;
@@ -78,14 +70,14 @@ st.markdown(
         --border-color: #262730;
     }
     
-    /* Pastikan konten tidak tertutup oleh header sticky */
-    .stApp {
-        margin-top: 80px;
+    /* Pastikan konten tidak tertutup oleh header fixed */
+    .main-content {
+        padding-top: 80px;
     }
     
-    /* Improve scroll behavior */
-    .main-content {
-        padding-top: 20px;
+    /* Sidebar styling improvements */
+    .sidebar .sidebar-content {
+        padding-top: 80px;
     }
     </style>
     """,
@@ -273,11 +265,23 @@ if gdf_clean is not None:
 else:
     st.error("Tidak dapat memuat data. Pastikan data sampel telah dibuat dengan menjalankan 'python scripts/create_sample_data.py'")
 
-# Informasi tambahan
-st.sidebar.subheader("Informasi")
+# Informasi tambahan - fokus pada kasus lahan
+st.sidebar.subheader("Tentang Simulasi")
 st.sidebar.info(
-    "Dashboard ini menampilkan analisis data lahan simulasi. "
-    "Gunakan opsi konfigurasi mata uang untuk menampilkan nilai dalam Rupiah."
+    """
+    **Dashboard Simulasi Kasus Lahan**
+    
+    Aplikasi ini menampilkan analisis data lahan simulasi 
+    untuk keperluan studi kasus dan pembelajaran.
+    
+    **Fitur Utama:**
+    - Visualisasi distribusi nilai lahan
+    - Analisis statistik deskriptif
+    - Peta interaktif nilai properti
+    - Filter data sesuai kebutuhan
+    
+    Gunakan menu konfigurasi untuk menyesuaikan tampilan data.
+    """
 )
 
 # Tutup container untuk konten utama
