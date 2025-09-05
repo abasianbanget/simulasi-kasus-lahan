@@ -1,52 +1,32 @@
-import os
 import numpy as np
 import geopandas as gpd
-import pandas as pd
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Point
+import os
+from pathlib import Path
 
 def create_sample_data():
-    """Create sample geospatial data for testing"""
-    # Create directories if they don't exist
-    os.makedirs('data/raw', exist_ok=True)
+    # Buat direktori jika belum ada
+    Path("data/raw").mkdir(parents=True, exist_ok=True)
     
-    # Create sample point data
+    # Buat data sampel
     np.random.seed(42)
-    n_points = 100
+    num_points = 100
+    latitudes = np.random.uniform(-6.2, -6.1, num_points)
+    longitudes = np.random.uniform(106.7, 106.8, num_points)
+    values = np.random.uniform(100000, 500000, num_points)
     
-    # Generate random points around a center
-    center_lat, center_lon = -6.2, 106.8  # Jakarta coordinates
-    points = []
-    values = []
-    
-    for i in range(n_points):
-        lat = center_lat + np.random.normal(0, 0.05)
-        lon = center_lon + np.random.normal(0, 0.05)
-        points.append(Point(lon, lat))
-        values.append(np.random.uniform(100000, 5000000))  # Random property values
-    
-    # Create GeoDataFrame
+    # Buat GeoDataFrame
+    geometry = [Point(xy) for xy in zip(longitudes, latitudes)]
     gdf = gpd.GeoDataFrame({
-        'id': range(n_points),
+        'id': range(num_points),
         'value': values,
-        'geometry': points
+        'geometry': geometry
     })
     
-    # Set CRS
-    gdf.crs = 'EPSG:4326'
-    
-    # Save as shapefile
-    gdf.to_file('data/raw/sample_land_data.shp')
-    print(f"Created sample data with {n_points} points")
-    
-    # Also save as CSV for reference
-    csv_data = pd.DataFrame({
-        'id': range(n_points),
-        'value': values,
-        'longitude': [point.x for point in points],
-        'latitude': [point.y for point in points]
-    })
-    csv_data.to_csv('data/raw/sample_land_data.csv', index=False)
-    print("Sample data saved to data/raw/")
+    # Simpan sebagai shapefile
+    gdf.to_file("data/raw/sample_land_data.shp")
+    return True
 
 if __name__ == "__main__":
     create_sample_data()
+    print("Data sampel berhasil dibuat!")
