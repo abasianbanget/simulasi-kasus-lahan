@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import sys
 import os
+import subprocess
 
 # Tambahkan path ke src
 current_dir = Path(__file__).parent
@@ -35,6 +36,26 @@ st.title("🏞️ Dashboard Simulasi Kasus Lahan")
 # Sidebar
 st.sidebar.header("Konfigurasi")
 
+# Fungsi untuk membuat data sampel
+def create_sample_data():
+    try:
+        # Jalankan script create_sample_data.py menggunakan subprocess
+        result = subprocess.run(
+            [sys.executable, "scripts/create_sample_data.py"],
+            capture_output=True,
+            text=True,
+            cwd=project_root
+        )
+        
+        if result.returncode == 0:
+            return True
+        else:
+            st.error(f"Gagal membuat data sampel: {result.stderr}")
+            return False
+    except Exception as e:
+        st.error(f"Error menjalankan script: {e}")
+        return False
+
 # Load data dengan error handling yang lebih baik
 @st.cache_data
 def load_data():
@@ -44,16 +65,10 @@ def load_data():
         
         # Periksa apakah file data ada
         if not os.path.exists(data_path):
-            st.error(f"File data tidak ditemukan di: {data_path}")
-            st.info("Membuat data sampel...")
-            
-            # Coba buat data sampel
-            try:
-                from scripts.create_sample_data import create_sample_data
-                create_sample_data()
+            st.warning("File data tidak ditemukan. Membuat data sampel...")
+            if create_sample_data():
                 st.success("Data sampel berhasil dibuat!")
-            except Exception as e:
-                st.error(f"Gagal membuat data sampel: {e}")
+            else:
                 return None, None
             
         gdf = read_shapefile(data_path)
@@ -72,4 +87,61 @@ def load_data():
 
 gdf_clean, config = load_data()
 
-# ... kode selanjutnya tetap sama
+if gdf_clean is not None:
+    # Tampilkan metrik
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Jumlah Data", len(gdf_clean))
+    col2.metric("Nilai Rata-rata", f"${gdf_clean['value'].mean():.2f}")
+    col3.metric("Nilai Minimum", f"${gdf_clean['value'].min():.2f}")
+    col4.metric("Nilai Maksimum", f"${gdf_clean['value'].max():.2f}")
+
+    # Tab untuk berbagai visualisasi
+    tab1, tab2, tab3 = st.tabs(["Peta Interaktif", "Analisis Statistik", "Data"])
+
+    with tab1:
+        st.header("Peta Interaktif Nilai Lahan")
+        try:
+            fig = create_interactive_map(gdf_clean, 'value', 'Distribusi Nilai Lahan')
+            st.plotly_chart(fig, use_container_width=True)
+        except Exception as e:
+            st.error(f"Error creating interactive map: {e}")
+            st.info("Menggunakan static map sebagai alternatif...")
+            fig = create_static_map(gdf_clean, 'value', 'Distribusi Nilai Lahan')
+            st.pyplot(fig)
+
+    with tab2:
+        st.header("Analisis Statistik")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.subheader("Distribusi Nilai")
+            fig_hist, ax_hist = plt.subplots()
+            ax_hist.hist(gdf_clean['value'], bins=20, edgecolor='black', alpha=0.7)
+            ax_hist.set_xlabel('Nilai')
+            ax_hist.set_ylabel('Frekuensi')
+            st.pyplot(fig_hist)
+        
+        with col2:
+            st.subheader("Box Plot")
+            fig_box, ax_box = plt.subplots()
+            ax_box.boxplot(gdf_clean['value'])
+            ax_box.set_ylabel('Nilai')
+            st.pyplot(fig_box)
+        
+        # Tampilkan statistik
+        st.subheader("Statistik Deskriptif")
+        st.dataframe(gdf_clean['value'].describe())
+
+    with tab3:
+        st.header("Data")
+        st.dataframe(gdf_clean.drop(columns=['geometry']))
+else:
+    st.error("Tidak dapat memuat data. Pastikan data sampel telah dibuat dengan menjalankan 'python scripts/create_sample_data.py'")
+
+# Informasi tambahan
+st.sidebar.subheader("Informasi")
+st.sidebar.info(
+    "Dashboard ini menampilkan analisis data lahan simulasi."
+    "Gunakan slider untuk memfilter data berdasarkan nilai lahan."
+)
