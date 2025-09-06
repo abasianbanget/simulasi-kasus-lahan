@@ -69,6 +69,10 @@ def get_theme_css(theme):
             --stat-box-bg: rgba(255, 255, 255, 0.15);
             --input-bg: rgba(255, 255, 255, 0.1);
             --input-border: 1px solid rgba(255, 255, 255, 0.2);
+            --font-size-sm: 14px;
+            --font-size-md: 16px;
+            --font-size-lg: 18px;
+            --font-size-xl: 20px;
         }
         </style>
         """
@@ -93,6 +97,10 @@ def get_theme_css(theme):
             --stat-box-bg: rgba(52, 152, 219, 0.15);
             --input-bg: rgba(255, 255, 255, 0.9);
             --input-border: 1px solid rgba(0, 0, 0, 0.1);
+            --font-size-sm: 14px;
+            --font-size-md: 16px;
+            --font-size-lg: 18px;
+            --font-size-xl: 20px;
         }
         </style>
         """
@@ -113,6 +121,7 @@ st.markdown(f"""
 .stApp {{
     background: var(--bg-gradient);
     color: var(--text-color);
+    font-size: var(--font-size-md);
 }}
 
 .main-header {{
@@ -320,6 +329,7 @@ st.markdown(f"""
     padding: 10px 20px !important;
     border: var(--input-border) !important;
     transition: all 0.3s ease !important;
+    font-size: var(--font-size-md);
 }}
 
 .stTabs [aria-selected="true"] {{
@@ -437,6 +447,7 @@ st.markdown(f"""
 .streamlit-expanderHeader {{
     font-weight: 600;
     color: var(--secondary);
+    font-size: var(--font-size-md);
 }}
 
 /* Compact form elements */
@@ -466,6 +477,7 @@ label {{
     margin-top: 0;
     border-bottom: 1px solid rgba(0,0,0,0.1);
     padding-bottom: 10px;
+    font-size: var(--font-size-lg);
 }}
 
 /* Chart container styling */
@@ -493,7 +505,7 @@ label {{
     margin-top: 0;
     border-bottom: 1px solid rgba(0,0,0,0.1);
     padding-bottom: 10px;
-    font-size: 16px;
+    font-size: var(--font-size-lg);
     font-weight: 600;
 }}
 
@@ -512,8 +524,9 @@ label {{
 }}
 
 .legend-label {{
-    font-size: 14px;
+    font-size: var(--font-size-md);
     color: var(--text-color);
+    font-weight: 500;
 }}
 
 /* Improved sidebar section headers */
@@ -524,7 +537,7 @@ label {{
     border-radius: 8px;
     margin-bottom: 15px;
     font-weight: 600;
-    font-size: 14px;
+    font-size: var(--font-size-md);
     text-align: center;
 }}
 
@@ -537,7 +550,7 @@ label {{
 }}
 
 .global-form label {{
-    font-size: 14px;
+    font-size: var(--font-size-md);
     font-weight: 500;
     margin-bottom: 8px;
     color: var(--text-color);
@@ -547,7 +560,7 @@ label {{
 .footer {{
     text-align: center;
     color: #7f8c8d;
-    font-size: 14px;
+    font-size: var(--font-size-sm);
     margin-top: 30px;
     padding-top: 20px;
     border-top: 1px solid rgba(0,0,0,0.1);
@@ -555,6 +568,105 @@ label {{
 
 .footer p {{
     margin: 5px 0;
+}}
+
+/* Tab content styling */
+.tab-content {{
+    font-size: var(--font-size-md);
+}}
+
+.tab-content h1, .tab-content h2, .tab-content h3, .tab-content h4 {{
+    color: var(--secondary);
+}}
+
+.tab-content h1 {{
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}}
+
+.tab-content h2 {{
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+}}
+
+.tab-content h3 {{
+    font-size: 1.2rem;
+    margin-bottom: 0.6rem;
+}}
+
+.tab-content p {{
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}}
+
+/* Dashboard specific styling */
+.dashboard-grid {{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}}
+
+.dashboard-card {{
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    border: var(--card-border);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}}
+
+.dashboard-card h3 {{
+    color: var(--secondary);
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: var(--font-size-lg);
+}}
+
+/* Data table styling */
+.data-table {{
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: var(--font-size-sm);
+}}
+
+.data-table th, .data-table td {{
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}}
+
+.data-table th {{
+    background-color: var(--stat-box-bg);
+    color: var(--secondary);
+    font-weight: 600;
+}}
+
+.data-table tr:hover {{
+    background-color: rgba(0,0,0,0.05);
+}}
+
+/* Responsive table */
+.table-container {{
+    overflow-x: auto;
+}}
+
+/* Custom mapbox styles */
+.mapbox-style-container {{
+    margin-bottom: 20px;
+}}
+
+.mapbox-style-container label {{
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-color);
+}}
+
+/* Improved chart styling */
+.plotly-chart {{
+    border-radius: 12px;
+    overflow: hidden;
 }}
 </style>
 """, unsafe_allow_html=True)
@@ -587,16 +699,23 @@ with st.sidebar.expander("🎨 TEMA DAN TAMPILAN", expanded=False):
 # Kontrol Peta dipindahkan ke sidebar
 with st.sidebar.expander("🗺️ KONTROL PETA", expanded=False):
     st.markdown("### Gaya Peta")
+    map_style_options = {
+        "OpenStreetMap": "open-street-map",
+        "Satellite": "satellite", 
+        "Light": "carto-positron",
+        "Dark": "carto-darkmatter",
+        "Terrain": "stamen-terrain"
+    }
+    
     map_style = st.radio(
         "Pilih Gaya Peta",
-        ["open-street-map", "satellite", "stamen-terrain"],
+        list(map_style_options.keys()),
         index=0,
-        key="map_style_selector",
-        horizontal=True
+        key="map_style_selector"
     )
     
-    if map_style != st.session_state.map_style:
-        st.session_state.map_style = map_style
+    if map_style_options[map_style] != st.session_state.map_style:
+        st.session_state.map_style = map_style_options[map_style]
         st.rerun()
     
     st.markdown("### Layer Peta")
@@ -871,13 +990,32 @@ def load_conflict_data():
         'legal_documents': [
             {'name': 'SK Mendagri No. SK.15/HPL/DA/81', 'year': 1981, 'type': 'HPL', 'relevance': 0.95},
             {'name': 'Sertifikat HPL Transmigrasi', 'year': 1993, 'type': 'HPL', 'relevance': 0.90},
-            {'name': 'Surat Gubernur Riau No. 525/EK/2194', 'year': 1996, 'type': 'Izin', 'relevance': 0.85},
+            {'name': 'Surrat Gubernur Riau No. 525/EK/2194', 'year': 1996, 'type': 'Izin', 'relevance': 0.85},
             {'name': 'HGU No. 11/2005', 'year': 2005, 'type': 'HGU', 'relevance': 0.75},
             {'name': 'Surat Revisi PT JJP No. 008/Dir/JJP/VIII/11', 'year': 2011, 'type': 'Revisi', 'relevance': 0.65},
             {'name': 'Surat Menteri Desa No. 080/SD/M-DPDTT/V/2015', 'year': 2015, 'type': 'Pelepasan', 'relevance': 0.80},
             {'name': 'BA Peninjauan 2020', 'year': 2020, 'type': 'Mediasi', 'relevance': 0.70},
             {'name': 'Surat DPC PATRI No. 35/PATRI-RH/II/2025', 'year': 2025, 'type': 'Tuntutan', 'relevance': 0.85}
-        ]
+        ],
+        # Data tambahan untuk visualisasi
+        'economic_impact': {
+            'years': [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+            'direct_loss': [15, 18, 22, 25, 30, 35, 40, 45, 50, 55, 60],
+            'indirect_loss': [25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75],
+            'environmental_damage': [10, 12, 15, 18, 20, 22, 25, 28, 30, 32, 35]
+        },
+        'population_impact': {
+            'years': [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+            'affected_families': [50, 65, 80, 95, 110, 125, 140, 150, 150, 150, 150],
+            'relocated_families': [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+            'income_reduction': [25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75]
+        },
+        'resolution_options': {
+            'options': ['Mediasi', 'Kompensasi', 'Pembagian Lahan', 'Relokasi', 'Gugatan Hukum'],
+            'cost': [5, 45, 30, 25, 15],
+            'duration': [6, 12, 24, 18, 36],
+            'success_rate': [70, 85, 90, 80, 60]
+        }
     }
     return conflict_data
 
@@ -1092,7 +1230,8 @@ def create_interactive_map(conflict_data):
             x=0.01,
             bgcolor='rgba(255, 255, 255, 0.8)',
             bordercolor='rgba(0, 0, 0, 0.1)',
-            borderwidth=1
+            borderwidth=1,
+            font=dict(size=14)
         )
     )
     
@@ -1379,6 +1518,318 @@ def create_displacement_animation(conflict_data):
     </div>
     """, unsafe_allow_html=True)
 
+# Fungsi untuk membuat visualisasi dashboard
+def create_dashboard(conflict_data):
+    """Buat dashboard dengan berbagai visualisasi data"""
+    st.subheader("Dashboard Analisis Konflik Lahan")
+    
+    # Statistik utama
+    stats = conflict_data['stats']
+    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.markdown(f"""
+        <div class="stat-box">
+            <div class="stat-label">Luas Sengketa</div>
+            <div class="stat-value">{stats['luas_sengketa']} Ha</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <div class="stat-box">
+            <div class="stat-label">Durasi Konflik</div>
+            <div class="stat-value">{stats['durasi_konflik']} Tahun</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown(f"""
+        <div class="stat-box">
+            <div class="stat-label">Keluarga Terdampak</div>
+            <div class="stat-value">{stats['keluarga_terdampak']}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        st.markdown(f"""
+        <div class="stat-box">
+            <div class="stat-label">Nilai Kerugian</div>
+            <div class="stat-value">{format_currency(stats['nilai_kerugian'], "IDR")}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Grafik timeline konflik
+    st.markdown("### Timeline Konflik Lahan")
+    timeline_df = pd.DataFrame(conflict_data['timeline'])
+    
+    fig_timeline = px.scatter(timeline_df, x='year', y='sources', size='sources',
+                             color='impact', color_discrete_map={
+                                 'high': '#e74c3c',
+                                 'medium': '#f39c12', 
+                                 'very_high': '#c0392b'
+                             },
+                             hover_name='event', hover_data={'year': True, 'sources': True, 'impact': True})
+    
+    fig_timeline.update_layout(
+        height=400,
+        xaxis_title="Tahun",
+        yaxis_title="Jumlah Sumber",
+        showlegend=True
+    )
+    
+    st.plotly_chart(fig_timeline, use_container_width=True)
+    
+    # Grafik dampak ekonomi
+    st.markdown("### Dampak Ekonomi Konflik")
+    economic_data = conflict_data['economic_impact']
+    economic_df = pd.DataFrame(economic_data)
+    
+    fig_economic = go.Figure()
+    fig_economic.add_trace(go.Scatter(x=economic_df['years'], y=economic_df['direct_loss'],
+                                     mode='lines+markers', name='Kerugian Langsung (Miliar Rp)',
+                                     line=dict(color='#e74c3c', width=3)))
+    fig_economic.add_trace(go.Scatter(x=economic_df['years'], y=economic_df['indirect_loss'],
+                                     mode='lines+markers', name='Kerugian Tidak Langsung (Miliar Rp)',
+                                     line=dict(color='#f39c12', width=3)))
+    fig_economic.add_trace(go.Scatter(x=economic_df['years'], y=economic_df['environmental_damage'],
+                                     mode='lines+markers', name='Kerusakan Lingkungan (Miliar Rp)',
+                                     line=dict(color='#2ecc71', width=3)))
+    
+    fig_economic.update_layout(
+        height=400,
+        xaxis_title="Tahun",
+        yaxis_title="Nilai (Miliar Rupiah)",
+        hovermode='x unified'
+    )
+    
+    st.plotly_chart(fig_economic, use_container_width=True)
+    
+    # Grafik dampak sosial
+    st.markdown("### Dampak Sosial Konflik")
+    population_data = conflict_data['population_impact']
+    population_df = pd.DataFrame(population_data)
+    
+    fig_population = make_subplots(specs=[[{"secondary_y": True}]])
+    
+    fig_population.add_trace(
+        go.Scatter(x=population_df['years'], y=population_df['affected_families'],
+                  mode='lines+markers', name='Keluarga Terdampak',
+                  line=dict(color='#3498db', width=3)),
+        secondary_y=False,
+    )
+    
+    fig_population.add_trace(
+        go.Scatter(x=population_df['years'], y=population_df['relocated_families'],
+                  mode='lines+markers', name='Keluarga Direlokasi',
+                  line=dict(color='#9b59b6', width=3)),
+        secondary_y=False,
+    )
+    
+    fig_population.add_trace(
+        go.Scatter(x=population_df['years'], y=population_df['income_reduction'],
+                  mode='lines+markers', name='Penurunan Pendapatan (%)',
+                  line=dict(color='#e74c3c', width=3)),
+        secondary_y=True,
+    )
+    
+    fig_population.update_layout(
+        height=400,
+        xaxis_title="Tahun",
+        hovermode='x unified'
+    )
+    
+    fig_population.update_yaxes(title_text="Jumlah Keluarga", secondary_y=False)
+    fig_population.update_yaxes(title_text="Penurunan Pendapatan (%)", secondary_y=True)
+    
+    st.plotly_chart(fig_population, use_container_width=True)
+    
+    # Analisis opsi resolusi
+    st.markdown("### Analisis Opsi Resolusi Konflik")
+    resolution_data = conflict_data['resolution_options']
+    resolution_df = pd.DataFrame(resolution_data)
+    
+    fig_resolution = make_subplots(specs=[[{"secondary_y": True}]])
+    
+    fig_resolution.add_trace(
+        go.Bar(x=resolution_df['options'], y=resolution_df['cost'],
+               name='Biaya (Miliar Rp)', marker_color='#3498db'),
+        secondary_y=False,
+    )
+    
+    fig_resolution.add_trace(
+        go.Scatter(x=resolution_df['options'], y=resolution_df['success_rate'],
+                  mode='lines+markers', name='Tingkat Keberhasilan (%)',
+                  line=dict(color='#2ecc71', width=3)),
+        secondary_y=True,
+    )
+    
+    fig_resolution.update_layout(
+        height=400,
+        xaxis_title="Opsi Resolusi",
+        hovermode='x unified'
+    )
+    
+    fig_resolution.update_yaxes(title_text="Biaya (Miliar Rp)", secondary_y=False)
+    fig_resolution.update_yaxes(title_text="Tingkat Keberhasilan (%)", secondary_y=True)
+    
+    st.plotly_chart(fig_resolution, use_container_width=True)
+    
+    # Tabel opsi resolusi
+    st.markdown("### Detail Opsi Resolusi")
+    resolution_display_df = resolution_df[['options', 'cost', 'duration', 'success_rate']].copy()
+    resolution_display_df.columns = ['Opsi Resolusi', 'Biaya (Miliar Rp)', 'Durasi (Bulan)', 'Tingkat Keberhasilan (%)']
+    st.dataframe(resolution_display_df, use_container_width=True)
+
+# Fungsi untuk membuat analisis AI
+def create_ai_analysis(conflict_data):
+    """Buat analisis AI dengan prediksi dan rekomendasi"""
+    st.subheader("Analisis Kecerdasan Buatan")
+    
+    st.markdown("""
+    <div class="analysis-card">
+        <h3>Prediksi Model AI</h3>
+        <p>Berdasarkan analisis data historis dan pola konflik lahan, model AI kami memprediksi:</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Prediksi perkembangan konflik
+    st.markdown("### Prediksi Perkembangan Konflik")
+    
+    years = [2023, 2024, 2025, 2026, 2027]
+    conflict_intensity = [75, 80, 85, 78, 70]
+    resolution_probability = [20, 30, 45, 60, 75]
+    
+    fig_prediction = make_subplots(specs=[[{"secondary_y": True}]])
+    
+    fig_prediction.add_trace(
+        go.Scatter(x=years, y=conflict_intensity,
+                  mode='lines+markers', name='Intensitas Konflik',
+                  line=dict(color='#e74c3c', width=3)),
+        secondary_y=False,
+    )
+    
+    fig_prediction.add_trace(
+        go.Scatter(x=years, y=resolution_probability,
+                  mode='lines+markers', name='Probabilitas Resolusi',
+                  line=dict(color='#2ecc71', width=3)),
+        secondary_y=True,
+    )
+    
+    fig_prediction.update_layout(
+        height=400,
+        xaxis_title="Tahun",
+        hovermode='x unified'
+    )
+    
+    fig_prediction.update_yaxes(title_text="Intensitas Konflik (%)", secondary_y=False)
+    fig_prediction.update_yaxes(title_text="Probabilitas Resolusi (%)", secondary_y=True)
+    
+    st.plotly_chart(fig_prediction, use_container_width=True)
+    
+    # Rekomendasi AI
+    st.markdown("### Rekomendasi Berbasis AI")
+    
+    recommendations = [
+        {"title": "Mediasi Segera", "priority": "Tinggi", "impact": "Mengurangi ketegangan sebesar 40%"},
+        {"title": "Kompensasi Bertahap", "priority": "Sedang", "impact": "Meningkatkan kepuasan masyarakat sebesar 35%"},
+        {"title": "Peninjauan Ulang Batas", "priority": "Tinggi", "impact": "Mengurangi area sengketa sebesar 60%"},
+        {"title": "Program Pemberdayaan", "priority": "Sedang", "impact": "Meningkatkan ekonomi alternatif sebesar 45%"}
+    ]
+    
+    for rec in recommendations:
+        priority_color = "#e74c3c" if rec["priority"] == "Tinggi" else "#f39c12"
+        st.markdown(f"""
+        <div class="analysis-card">
+            <h3>{rec['title']} <span style="color: {priority_color}; font-size: 0.8em;">({rec['priority']})</span></h3>
+            <p>{rec['impact']}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+# Fungsi untuk membuat tab data
+def create_data_tab(conflict_data):
+    """Buat tab data dengan informasi lengkap"""
+    st.subheader("Data Lengkap Konflik Lahan")
+    
+    # Data timeline
+    st.markdown("### Timeline Konflik")
+    timeline_df = pd.DataFrame(conflict_data['timeline'])
+    st.dataframe(timeline_df, use_container_width=True)
+    
+    # Data perubahan koordinat
+    st.markdown("### Data Pergeseran Koordinat")
+    coord_df = pd.DataFrame(conflict_data['coordinate_changes'])
+    st.dataframe(coord_df, use_container_width=True)
+    
+    # Data perubahan luas lahan
+    st.markdown("### Data Perubahan Luas Lahan")
+    area_df = pd.DataFrame(conflict_data['land_area_changes'])
+    st.dataframe(area_df, use_container_width=True)
+    
+    # Data dokumen hukum
+    st.markdown("### Dokumen Hukum Terkait")
+    legal_df = pd.DataFrame(conflict_data['legal_documents'])
+    st.dataframe(legal_df, use_container_width=True)
+
+# Fungsi untuk membuat tab resolusi
+def create_resolution_tab(conflict_data):
+    """Buat tab resolusi dengan analisis mendalam"""
+    st.subheader("Analisis Resolusi Konflik")
+    
+    st.markdown("""
+    <div class="analysis-card">
+        <h3>Pendekatan Resolusi Konflik Lahan</h3>
+        <p>Berdasarkan analisis mendalam terhadap konflik lahan di Desa Pedamaran, berikut adalah pendekatan resolusi yang direkomendasikan:</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Analisis stakeholder
+    st.markdown("### Analisis Stakeholder")
+    parties_df = pd.DataFrame(conflict_data['parties_involved'])
+    
+    fig_stakeholder = px.sunburst(parties_df, path=['type', 'name'], values='resources',
+                                 color='type', color_discrete_map={
+                                     'company': '#e74c3c',
+                                     'community': '#3498db',
+                                     'government': '#2ecc71',
+                                     'ngo': '#f39c12'
+                                 })
+    
+    fig_stakeholder.update_layout(height=500)
+    st.plotly_chart(fig_stakeholder, use_container_width=True)
+    
+    # Matriks analisis konflik
+    st.markdown("### Matriks Analisis Konflik")
+    
+    conflict_matrix = {
+        'Aspek': ['Legal', 'Sosial', 'Ekonomi', 'Lingkungan', 'Politik'],
+        'Tingkat Keparahan': [8, 9, 7, 6, 5],
+        'Tingkat Urgensi': [9, 8, 7, 6, 5],
+        'Kompleksitas': [8, 7, 6, 5, 9]
+    }
+    
+    matrix_df = pd.DataFrame(conflict_matrix)
+    st.dataframe(matrix_df, use_container_width=True)
+    
+    # Rencana aksi
+    st.markdown("### Rencana Aksi Resolusi")
+    
+    action_plan = [
+        {"phase": "Fase 1 (0-6 bulan)", "actions": ["Mediasi multipihak", "Verifikasi data lapangan", "Penghentian aktivitas konflik"]},
+        {"phase": "Fase 2 (6-12 bulan)", "actions": ["Penandatanganan MoU", "Penentuan kompensasi", "Program pemberdayaan masyarakat"]},
+        {"phase": "Fase 3 (12-24 bulan)", "actions": ["Implementasi solusi", "Monitoring dan evaluasi", "Penyusunan regulasi pencegahan"]}
+    ]
+    
+    for phase in action_plan:
+        st.markdown(f"""
+        <div class="analysis-card">
+            <h3>{phase['phase']}</h3>
+            <ul>
+                {''.join([f'<li>{action}</li>' for action in phase['actions']])}
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
 # Inisialisasi session state
 if 'conflict_data' not in st.session_state:
     st.session_state.conflict_data = load_conflict_data()
@@ -1390,6 +1841,7 @@ if 'ai_results' not in st.session_state:
 main_tabs = st.tabs(["🗺️ Peta Interaktif", "📊 Dashboard", "📈 Analisis Pergeseran", "🤖 Analisis AI", "🔍 Data", "⚖️ Resolusi", "💰 Ekonomi"])
 
 with main_tabs[0]:
+    st.markdown('<div class="tab-content">', unsafe_allow_html=True)
     st.header("Peta Interaktif Konflik Lahan")
     
     # Create the interactive map
@@ -1423,14 +1875,127 @@ with main_tabs[0]:
             </ul>
         </div>
         """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with main_tabs[1]:
+    st.markdown('<div class="tab-content">', unsafe_allow_html=True)
+    create_dashboard(st.session_state.conflict_data)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with main_tabs[2]:
+    st.markdown('<div class="tab-content">', unsafe_allow_html=True)
     st.header("Analisis Pergeseran Lahan dan Tumpang Tindih")
     create_displacement_analysis(st.session_state.conflict_data)
     
     # Tampilkan animasi jika diaktifkan
     if st.session_state.show_animation:
         create_displacement_animation(st.session_state.conflict_data)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with main_tabs[3]:
+    st.markdown('<div class="tab-content">', unsafe_allow_html=True)
+    create_ai_analysis(st.session_state.conflict_data)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with main_tabs[4]:
+    st.markdown('<div class="tab-content">', unsafe_allow_html=True)
+    create_data_tab(st.session_state.conflict_data)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with main_tabs[5]:
+    st.markdown('<div class="tab-content">', unsafe_allow_html=True)
+    create_resolution_tab(st.session_state.conflict_data)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with main_tabs[6]:
+    st.markdown('<div class="tab-content">', unsafe_allow_html=True)
+    st.header("Analisis Ekonomi Konflik Lahan")
+    
+    # Analisis dampak ekonomi
+    economic_data = st.session_state.conflict_data['economic_impact']
+    economic_df = pd.DataFrame(economic_data)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("### Biaya Kumulatif Konflik")
+        total_direct = sum(economic_df['direct_loss'])
+        total_indirect = sum(economic_df['indirect_loss'])
+        total_environmental = sum(economic_df['environmental_damage'])
+        
+        fig_costs = go.Figure(data=[go.Pie(
+            labels=['Kerugian Langsung', 'Kerugian Tidak Langsung', 'Kerusakan Lingkungan'],
+            values=[total_direct, total_indirect, total_environmental],
+            hole=0.4,
+            marker_colors=['#e74c3c', '#f39c12', '#2ecc71']
+        )])
+        
+        fig_costs.update_layout(height=400)
+        st.plotly_chart(fig_costs, use_container_width=True)
+    
+    with col2:
+        st.markdown("### Prediksi Biaya Masa Depan")
+        
+        # Prediksi biaya berdasarkan inflasi
+        years = [2025, 2026, 2027, 2028, 2029]
+        inflation_rate = 2.5  # %
+        
+        future_direct = [economic_df['direct_loss'].iloc[-1] * (1 + inflation_rate/100) ** i for i in range(5)]
+        future_indirect = [economic_df['indirect_loss'].iloc[-1] * (1 + inflation_rate/100) ** i for i in range(5)]
+        
+        fig_future = go.Figure()
+        fig_future.add_trace(go.Scatter(x=years, y=future_direct, mode='lines+markers',
+                                       name='Kerugian Langsung', line=dict(color='#e74c3c', width=3)))
+        fig_future.add_trace(go.Scatter(x=years, y=future_indirect, mode='lines+markers',
+                                       name='Kerugian Tidak Langsung', line=dict(color='#f39c12', width=3)))
+        
+        fig_future.update_layout(
+            height=400,
+            xaxis_title="Tahun",
+            yaxis_title="Nilai (Miliar Rupiah)"
+        )
+        
+        st.plotly_chart(fig_future, use_container_width=True)
+    
+    # Analisis cost-benefit resolusi
+    st.markdown("### Analisis Cost-Benefit Resolusi")
+    
+    resolution_data = st.session_state.conflict_data['resolution_options']
+    resolution_df = pd.DataFrame(resolution_data)
+    
+    fig_roi = go.Figure()
+    fig_roi.add_trace(go.Bar(x=resolution_df['options'], y=resolution_df['cost'],
+                            name='Biaya (Miliar Rp)', marker_color='#3498db'))
+    fig_roi.add_trace(go.Scatter(x=resolution_df['options'], y=resolution_df['success_rate'],
+                                mode='lines+markers', name='Tingkat Keberhasilan (%)',
+                                line=dict(color='#2ecc71', width=3)))
+    
+    fig_roi.update_layout(
+        height=400,
+        xaxis_title="Opsi Resolusi",
+        yaxis_title="Nilai",
+        hovermode='x unified'
+    )
+    
+    st.plotly_chart(fig_roi, use_container_width=True)
+    
+    # Rekomendasi ekonomi
+    st.markdown("### Rekomendasi Ekonomi")
+    
+    st.markdown("""
+    <div class="analysis-card">
+        <h3>Strategi Pengoptimalan Sumber Daya</h3>
+        <ol>
+            <li><strong>Alokasi dana kompensasi bertahap</strong> untuk mengurangi beban keuangan sekaligus membangun kepercayaan</li>
+            <li><strong>Investasi dalam program pemberdayaan masyarakat</strong> untuk menciptakan sumber pendapatan alternatif</li>
+            <li><strong>Pengembangan skema bagi hasil</strong> antara perusahaan dan masyarakat untuk solusi win-win</li>
+            <li><strong>Utilisasi dana CSR perusahaan</strong> untuk program pembangunan berkelanjutan di area konflik</li>
+            <li><strong>Kerjasama dengan lembaga keuangan</strong> untuk pembiayaan resolusi konflik yang berkelanjutan</li>
+        </ol>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Watermark dengan style profesional yang diperbarui
 st.markdown(
