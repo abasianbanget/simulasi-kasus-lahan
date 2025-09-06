@@ -1,20 +1,55 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
-from pathlib import Path
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import geopandas as gpd
+from shapely.geometry import Point, Polygon
+import json
+from datetime import datetime, timedelta
+import time
+import requests
+from io import BytesIO
+import base64
+import folium
+from streamlit_folium import st_folium
+from folium.plugins import HeatMap, MarkerCluster, MiniMap, Fullscreen, Draw, MeasureControl, TimestampedGeoJson
+import leafmap.foliumap as leafmap
+import pydeck as pdk
+import altair as alt
+from sklearn.cluster import DBSCAN, KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+import torch
+import torch.nn as nn
+from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
+import networkx as nx
+from pyvis.network import Network
+import speech_recognition as sr
+from PIL import Image
+import cv2
+import io
+import hashlib
+import threading
+import asyncio
+import websockets
+import functools
+from concurrent.futures import ThreadPoolExecutor
+import joblib
+import xgboost as xgb
+from google.cloud import bigquery
+import boto3
+from azure.core.exceptions import AzureError
+import warnings
+warnings.filterwarnings('ignore')
+
+# Import modul dari src
 import sys
 import os
-import numpy as np
-import geopandas as gpd
-from shapely.geometry import Point
-
-# Tambahkan path ke src
-current_dir = Path(__file__).parent
-project_root = current_dir.parent
-src_path = os.path.join(project_root, 'src')
-
-if src_path not in sys.path:
-    sys.path.insert(0, src_path)
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 try:
     from data_ingestion import load_config, read_shapefile
@@ -22,267 +57,413 @@ try:
     from visualization import create_interactive_map, create_static_map
 except ImportError as e:
     st.error(f"Error importing modules: {e}")
-    st.stop()
+    st.info("Running in standalone mode without src modules")
 
 # Konfigurasi halaman
 st.set_page_config(
-    page_title="Simulasi Kasus Lahan",
-    page_icon="🏞️",
+    page_title="AI-Powered Land Conflict Simulator - Rokan Hilir",
+    page_icon="🌍",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# CSS custom untuk judul yang benar-benar freeze dan adaptif
-st.markdown(
-    """
-    <style>
-    .main-header {
-        text-align: center;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        background-color: var(--background-color);
-        z-index: 1000;
-        padding: 15px;
-        border-bottom: 2px solid var(--border-color);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
+# CSS custom dengan tema gelap dan animasi
+st.markdown("""
+<style>
+:root {
+    --primary: #2c3e50;
+    --secondary: #3498db;
+    --accent: #e74c3c;
+    --success: #2ecc71;
+    --warning: #f39c12;
+    --info: #1abc9c;
+    --dark: #1a1a1a;
+    --light: #f8f9fa;
+    --gradient-start: #667eea;
+    --gradient-end: #764ba2;
+    --neon-effect: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #0073e6, 0 0 20px #0073e6;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, var(--dark) 0%, #2c3e50 100%);
+    color: var(--light);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.stApp {
+    background: linear-gradient(135deg, var(--dark) 0%, #2c3e50 100%);
+    color: var(--light);
+}
+
+.main-header {
+    text-align: center;
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+    animation: headerGlow 3s infinite alternate;
+}
+
+@keyframes headerGlow {
+    0% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
+    100% { box-shadow: 0 0 30px rgba(118, 75, 162, 0.8); }
+}
+
+.main-header h1 {
+    color: white;
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.main-header p {
+    opacity: 0.9;
+    margin: 10px 0 0 0;
+    font-size: 1.2rem;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.stat-box {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.stat-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+}
+
+.stat-box:hover::before {
+    left: 100%;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: white;
+    margin: 10px 0;
+    text-shadow: var(--neon-effect);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.timeline {
+    position: relative;
+    max-width: 100%;
+    margin: 20px 0;
+}
+
+.timeline::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    background: linear-gradient(to bottom, var(--gradient-start), var(--gradient-end));
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    margin-left: -3px;
+    border-radius: 3px;
+}
+
+.timeline-item {
+    padding: 10px 40px;
+    position: relative;
+    width: 50%;
+    box-sizing: border-box;
+}
+
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border: 4px solid var(--secondary);
+    top: 15px;
+    border-radius: 50%;
+    z-index: 1;
+    box-shadow: 0 0 10px var(--secondary);
+}
+
+.timeline-content {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    position: relative;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.timeline-content:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.watermark {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    opacity: 0.8;
+    color: white;
+    font-size: 14px;
+    z-index: 1000;
+    text-align: right;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px 15px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.watermark div:first-child {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--secondary);
+}
+
+.animated-gradient {
+    background: linear-gradient(270deg, #667eea, #764ba2, #f093fb, #f5576c);
+    background-size: 800% 800%;
+    -webkit-animation: AnimationName 10s ease infinite;
+    -moz-animation: AnimationName 10s ease infinite;
+    animation: AnimationName 10s ease infinite;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+@-webkit-keyframes AnimationName {
+    0% { background-position: 0% 50% }
+    50% { background-position: 100% 50% }
+    100% { background-position: 0% 50% }
+}
+@-moz-keyframes AnimationName {
+    0% { background-position: 0% 50% }
+    50% { background-position: 100% 50% }
+    100% { background-position: 0% 50% }
+}
+@keyframes AnimationName {
+    0% { background-position: 0% 50% }
+    50% { background-position: 100% 50% }
+    100% { background-position: 0% 50% }
+}
+
+/* 3D effect for cards */
+.card-3d {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.card-3d-inner {
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.card-3d:hover .card-3d-inner {
+    transform: rotateY(10deg) rotateX(5deg);
+}
+
+/* Cyberpunk theme elements */
+.cyberpunk {
+    border: 1px solid #0ff;
+    box-shadow: 0 0 10px #0ff, inset 0 0 20px rgba(0, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.cyberpunk::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+    transform: rotate(45deg);
+    animation: cyberpunkGlow 3s linear infinite;
+}
+
+@keyframes cyberpunkGlow {
+    0% { transform: rotate(45deg) translate(-50%, -50%); }
+    100% { transform: rotate(45deg) translate(50%, 50%); }
+}
+
+/* Streamlit component adjustments */
+.stSelectbox, .stSlider, .stTextInput, .stNumberInput {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px !important;
+    padding: 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.stButton button {
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 10px 20px !important;
+    font-weight: bold !important;
+    transition: all 0.3s ease !important;
+}
+
+.stButton button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Tabs styling */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 8px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 10px 20px !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    transition: all 0.3s ease !important;
+}
+
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%) !important;
+    color: white !important;
+}
+
+/* Map container styling */
+.map-container {
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--gradient-end) 0%, var(--gradient-start) 100%);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
     .main-header h1 {
-        color: var(--text-color);
-        margin: 0;
-        font-size: 2rem;
-        font-weight: 700;
+        font-size: 1.8rem;
     }
     
-    /* Variabel CSS untuk tema adaptif */
-    :root {
-        --background-color: #ffffff;
-        --text-color: #31333F;
-        --border-color: #f0f2f6;
+    .stat-value {
+        font-size: 1.4rem;
     }
     
-    /* Streamlit dark theme support */
-    .stApp[data-theme="dark"] .main-header {
-        --background-color: #0E1117;
-        --text-color: #FAFAFA;
-        --border-color: #262730;
+    .timeline::after {
+        left: 31px;
     }
     
-    /* Pastikan konten tidak tertutup oleh header fixed */
-    .main-content {
-        padding-top: 80px;
+    .timeline-item {
+        width: 100%;
+        padding-left: 70px;
+        padding-right: 25px;
     }
     
-    /* Sidebar styling improvements */
-    .sidebar .sidebar-content {
-        padding-top: 80px;
+    .timeline-item::after {
+        left: 18px;
     }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+    
+    .right {
+        left: 0%;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
 
 # Judul aplikasi dengan CSS custom
 st.markdown(
-    '<div class="main-header"><h1>🏞️ Dashboard Simulasi Kasus Lahan</h1></div>', 
+    '''
+    <div class="main-header">
+        <h1>🌍 AI-Powered Land Conflict Simulator</h1>
+        <p>Advanced Geospatial Analytics for Rokan Hilir Land Dispute Resolution</p>
+    </div>
+    ''', 
     unsafe_allow_html=True
 )
 
 # Container untuk konten utama
 st.markdown('<div class="main-content">', unsafe_allow_html=True)
 
-# Sidebar
-st.sidebar.header("Konfigurasi")
+# Sidebar dengan fitur canggih
+st.sidebar.markdown('<div class="animated-gradient">CONFIGURATION PANEL</div>', unsafe_allow_html=True)
 
-# Konfigurasi Mata Uang dalam expander (tersembunyi secara default)
-with st.sidebar.expander("⚙️ Konfigurasi Mata Uang (Opsional)", expanded=False):
-    exchange_rate = st.number_input(
-        "Nilai Tukar USD ke IDR",
-        min_value=1000.0,
-        max_value=20000.0,
-        value=14000.0,
-        step=100.0,
-        help="Masukkan nilai tukar USD ke Rupiah"
+# Tabs di sidebar
+sidebar_tabs = st.sidebar.tabs(["⚙️ Core Settings", "🧠 AI Modules", "🌐 Cloud Services", "📡 Real-time Data", "🔒 Security"])
+
+with sidebar_tabs[0]:
+    st.subheader("Global Configuration")
+    
+    # Mode operasi
+    app_mode = st.selectbox(
+        "Application Mode",
+        ["Standard Analysis", "Advanced Simulation", "Predictive Modeling", "Crisis Management"]
     )
     
-    show_idr = st.checkbox("Tampilkan dalam Rupiah", value=False)
-
-# Fungsi untuk format mata uang dengan penanganan digit yang lebih baik
-def format_currency(amount, currency="USD"):
-    try:
-        if currency == "IDR":
-            # Format Rupiah tanpa desimal, dengan pemisah ribuan
-            nilai_idr = amount * exchange_rate
-            if nilai_idr >= 1_000_000_000_000:  # Triliun
-                return f"Rp {nilai_idr/1_000_000_000_000:.2f} T"
-            elif nilai_idr >= 1_000_000_000:  # Miliar
-                return f"Rp {nilai_idr/1_000_000_000:.2f} M"
-            elif nilai_idr >= 1_000_000:  # Juta
-                return f"Rp {nilai_idr/1_000_000:.2f} Jt"
-            elif nilai_idr >= 1_000:  # Ribu
-                return f"Rp {nilai_idr/1_000:.2f} Rb"
-            else:
-                return f"Rp {nilai_idr:,.0f}".replace(",", ".")
-        else:
-            # Format USD dengan 2 desimal
-            if amount >= 1_000_000_000:  # Billion
-                return f"${amount/1_000_000_000:.2f}B"
-            elif amount >= 1_000_000:  # Million
-                return f"${amount/1_000_000:.2f}M"
-            elif amount >= 1_000:  # Thousand
-                return f"${amount/1_000:.2f}K"
-            else:
-                return f"${amount:,.2f}"
-    except:
-        return f"${amount:,.2f}"  # Fallback format
-
-# Fungsi untuk membuat data sampel
-def create_sample_data():
-    try:
-        # Buat direktori jika belum ada
-        os.makedirs('data/raw', exist_ok=True)
-        
-        # Buat data sampel
-        np.random.seed(42)
-        num_points = 100
-        latitudes = np.random.uniform(-6.2, -6.1, num_points)
-        longitudes = np.random.uniform(106.7, 106.8, num_points)
-        values = np.random.uniform(100000, 500000, num_points)
-        
-        # Buat GeoDataFrame
-        geometry = [Point(xy) for xy in zip(longitudes, latitudes)]
-        gdf = gpd.GeoDataFrame({
-            'id': range(num_points),
-            'value': values,
-            'geometry': geometry
-        })
-        
-        # Simpan sebagai shapefile
-        gdf.to_file("data/raw/sample_land_data.shp")
-        return True
-    except Exception as e:
-        st.error(f"Gagal membuat data sampel: {e}")
-        return False
-
-# Load data dengan error handling yang lebih baik
-@st.cache_data
-def load_data():
-    try:
-        config = load_config()
-        data_path = 'data/raw/sample_land_data.shp'
-        
-        # Periksa apakah file data ada
-        if not os.path.exists(data_path):
-            st.warning("File data tidak ditemukan. Membuat data sampel...")
-            if create_sample_data():
-                st.success("Data sampel berhasil dibuat!")
-            else:
-                return None, None
-            
-        gdf = read_shapefile(data_path)
-        
-        # Periksa apakah data berhasil dibaca
-        if gdf is None or gdf.empty:
-            st.error("Gagal membaca data atau data kosong")
-            return None, None
-            
-        gdf_clean = clean_geospatial_data(gdf, config['project_settings']['default_crs'])
-        return gdf_clean, config
-        
-    except Exception as e:
-        st.error(f"Error loading data: {e}")
-        return None, None
-
-# Pemanggilan fungsi load_data
-gdf_clean, config = load_data()
-
-if gdf_clean is not None:
-    # Tampilkan metrik dengan opsi mata uang
-    col1, col2, col3, col4 = st.columns(4)
-    currency = "IDR" if show_idr else "USD"
-    
-    col1.metric("Jumlah Data", len(gdf_clean))
-    col2.metric("Nilai Rata-rata", format_currency(gdf_clean['value'].mean(), currency))
-    col3.metric("Nilai Minimum", format_currency(gdf_clean['value'].min(), currency))
-    col4.metric("Nilai Maksimum", format_currency(gdf_clean['value'].max(), currency))
-
-    # Tab untuk berbagai visualisasi
-    tab1, tab2, tab3 = st.tabs(["Peta Interaktif", "Analisis Statistik", "Data"])
-
-    with tab1:
-        st.header("Peta Interaktif Nilai Lahan")
-        try:
-            fig = create_interactive_map(gdf_clean, 'value', 'Distribusi Nilai Lahan')
-            st.plotly_chart(fig, use_container_width=True)
-        except Exception as e:
-            st.error(f"Error creating interactive map: {e}")
-            st.info("Menggunakan static map sebagai alternatif...")
-            fig = create_static_map(gdf_clean, 'value', 'Distribusi Nilai Lahan')
-            st.pyplot(fig)
-
-    with tab2:
-        st.header("Analisis Statistik")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.subheader("Distribusi Nilai")
-            fig_hist, ax_hist = plt.subplots()
-            ax_hist.hist(gdf_clean['value'], bins=20, edgecolor='black', alpha=0.7)
-            ax_hist.set_xlabel('Nilai')
-            ax_hist.set_ylabel('Frekuensi')
-            st.pyplot(fig_hist)
-        
-        with col2:
-            st.subheader("Box Plot")
-            fig_box, ax_box = plt.subplots()
-            ax_box.boxplot(gdf_clean['value'])
-            ax_box.set_ylabel('Nilai')
-            st.pyplot(fig_box)
-        
-        # Tampilkan statistik
-        st.subheader("Statistik Deskriptif")
-        stats = gdf_clean['value'].describe()
-        if show_idr:
-            stats_formatted = stats.apply(lambda x: format_currency(x, "IDR"))
-        else:
-            stats_formatted = stats.apply(lambda x: format_currency(x, "USD"))
-        st.dataframe(stats_formatted)
-
-    with tab3:
-        st.header("Data")
-        
-        # Format kolom value berdasarkan mata uang yang dipilih
-        display_data = gdf_clean.drop(columns=['geometry']).copy()
-        if show_idr:
-            display_data['value'] = display_data['value'].apply(lambda x: format_currency(x, "IDR"))
-        else:
-            display_data['value'] = display_data['value'].apply(lambda x: format_currency(x, "USD"))
-        
-        st.dataframe(display_data)
-else:
-    st.error("Tidak dapat memuat data. Pastikan data sampel telah dibuat dengan menjalankan 'python scripts/create_sample_data.py'")
-
-# Informasi tambahan - fokus pada kasus lahan
-st.sidebar.subheader("Tentang Simulasi")
-st.sidebar.info(
-    """
-    **Dashboard Simulasi Kasus Lahan**
-    
-    Aplikasi ini menampilkan analisis data lahan simulasi 
-    untuk keperluan studi kasus dan pembelajaran.
-    
-    **Fitur Utama:**
-    - Visualisasi distribusi nilai lahan
-    - Analisis statistik deskriptif
-    - Peta interaktif nilai properti
-    - Filter data sesuai kebutuhan
-    
-    Gunakan menu konfigurasi untuk menyesuaikan tampilan data.
-    """
-)
-
-# Tutup container untuk konten utama
-st.markdown('</div>', unsafe_allow_html=True)
